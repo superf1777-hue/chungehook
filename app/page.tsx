@@ -8,7 +8,7 @@ type Hook = {
 };
 type Metric = { id: string; name: string; spend: number; impressions: number; clicks: number; conversions: number };
 
-const styles = ["混合爆款风格", "争议性 / 反常识", "强烈悬念 / 好奇心", "医生权威 / 医疗冲突", "第一人称真实故事", "年龄痛点 / 症状痛点", "直接命令 / Don't / If"];
+const styles = ["EXTREME 极限创意冲击", "AGGRESSIVE 高冲突高悬念", "直接对抗 / 强烈质疑", "反常识 / 争议提问", "悬念揭秘 / 信息差", "第一人称真实故事", "年龄痛点 / 症状痛点", "奇特方法 / 好奇心", "直接命令 / Don't / If"];
 const initialMetrics: Metric[] = [];
 
 export default function Home() {
@@ -17,7 +17,7 @@ export default function Home() {
   const [style, setStyle] = useState(styles[0]);
   const [audience, setAudience] = useState("美国50岁以上长期吸烟者");
   const [reference, setReference] = useState("You Don't Need To Stop Smoking If You Know This Vicks Trick!");
-  const [count, setCount] = useState(10);
+  const [count, setCount] = useState(20);
   const [hooks, setHooks] = useState<Hook[]>([]);
   const [library, setLibrary] = useState<Hook[]>([]);
   const [metrics, setMetrics] = useState<Metric[]>(initialMetrics);
@@ -97,14 +97,14 @@ export default function Home() {
       <header className="topbar"><div className="mobile-brand">COPD Hook Studio</div><div className="breadcrumb">Workspace <span>/</span> {nav.find(n => n.id === tab)?.label}</div><div className="top-pill">MVP · {mode === "ai" ? "AI MODE" : "DEMO MODE"}</div></header>
       <div className="content">
         {tab === "generator" && <>
-          <div className="page-heading"><div><div className="eyebrow">CREATIVE ENGINE</div><h1>Hook Generator</h1><p>为美国短视频受众生成更有吸引力的 COPD 内容开头。</p></div><div className="heading-spark">✧</div></div>
+          <div className="page-heading"><div><div className="eyebrow">CREATIVE ENGINE</div><h1>Hook Generator</h1><p>EXTREME 极限创意模式：强冲突、强悬念、强情绪，面向美国45岁以上受众。</p></div><div className="heading-spark">✧</div></div>
           <div className="generator-grid">
             <section className="panel input-panel">
-              <div className="panel-title"><div><h2>创意 Brief</h2><p>描述你想测试的广告角度</p></div><span className="step-tag">01 / INPUT</span></div>
-              <label>创意主题</label><textarea value={topic} onChange={e => setTopic(e.target.value)} rows={2} placeholder="例如：晨起痰液、长期吸烟、肺部健康..." />
+              <div className="panel-title"><div><h2>创意 Brief</h2><p>默认 EXTREME：拒绝温和科普式开头</p></div><span className="step-tag">01 / INPUT</span></div>
+              <label>创意主题</label><textarea value={topic} onChange={e => setTopic(e.target.value)} rows={2} placeholder="例如：长期吸烟者晨起咳痰、爬楼气喘、夜间胸闷..." />
               <label>Hook 风格</label><select value={style} onChange={e => setStyle(e.target.value)}>{styles.map(s => <option key={s}>{s}</option>)}</select>
               <label>目标受众</label><input value={audience} onChange={e => setAudience(e.target.value)} />
-              <label>参考文案 <span className="optional">OPTIONAL</span></label><textarea value={reference} onChange={e => setReference(e.target.value)} rows={3} placeholder="粘贴你想让 AI 学习结构和语气的参考文案..." />
+              <label>参考文案 <span className="optional">OPTIONAL</span></label><textarea value={reference} onChange={e => setReference(e.target.value)} rows={3} placeholder="粘贴爆款参考文案，AI 学习冲击力和结构，不照搬未经证实的疗效说法..." />
               <div className="count-row"><label>生成数量</label><div className="count-options">{[10,20,50].map(n => <button key={n} onClick={() => setCount(n)} className={count === n ? "selected" : ""}>{n} 条</button>)}</div></div>
               <button className="primary-btn generate-btn" onClick={generate} disabled={busy || !topic.trim()}>{busy ? <><span className="spinner"/> 正在生成...</> : <>✦ 生成 Hooks <span>→</span></>}</button>
               <div className="privacy-note">✧ 不会自动发布广告。生成内容仅供创意参考，需人工核实医疗表述。</div>
@@ -112,7 +112,7 @@ export default function Home() {
             <section className="results-panel">
               <div className="results-header"><div><div className="eyebrow">OUTPUT</div><h2>生成结果 <span className="result-count">{hooks.length}</span></h2></div><span className="live-indicator"><i/> READY</span></div>
               {notice && <div className="notice">{notice}</div>}
-              {hooks.length === 0 ? <div className="empty-state"><div className="empty-icon">✳</div><h3>你的下一条 Hook 从这里开始</h3><p>填写左侧 Brief，生成英文开头、中文翻译和创意分析。</p><div className="empty-chips"><span>Curiosity</span><span>Contrarian</span><span>Storytelling</span></div></div> :
+              {hooks.length === 0 ? <div className="empty-state"><div className="empty-icon">✳</div><h3>你的下一条 Hook 从这里开始</h3><p>填写主题，默认生成20条不同结构的强冲击英文 Hook、中文翻译和独立风险审核。</p><div className="empty-chips"><span>EXTREME</span><span>Pattern Interrupt</span><span>High Curiosity</span><span>Direct Response</span></div></div> :
                 <div className="hook-list">{hooks.map((h, i) => <article className="hook-card" key={h.id}><div className="hook-card-top"><span className="hook-number">HOOK {String(i+1).padStart(2,"0")}</span><span className="score">✦ {h.score}/100</span></div><h3>{h.english}</h3><p className="translation">{h.chinese}</p><div className="angle">{h.angle}</div><div className="review">⚑ {h.review}</div><div className="card-actions"><button onClick={() => save(h)}>＋ 保存</button><button onClick={() => navigator.clipboard?.writeText(h.english)}>复制英文</button><button onClick={() => navigator.clipboard?.writeText(h.english + "\n" + h.chinese)}>复制双语</button></div></article>)}</div>}
             </section>
           </div>
