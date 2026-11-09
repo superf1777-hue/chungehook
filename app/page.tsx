@@ -61,7 +61,7 @@ export default function Home() {
       }));
       setHooks(rows);
       if (!rows.length) setNotice("没有生成结果，请调整输入后重试。");
-    } catch (e: any) { setNotice(e.message || "生成失败"); }
+    } catch (e: any) { setMode("error"); setNotice(e.message || "生成失败"); }
     finally { setBusy(false); }
   }
 
@@ -94,7 +94,7 @@ export default function Home() {
       <div className="sidebar-bottom"><div className="status-dot"/> Local workspace <small>Your data stays in this browser</small></div>
     </aside>
     <section className="main-area">
-      <header className="topbar"><div className="mobile-brand">COPD Hook Studio</div><div className="breadcrumb">Workspace <span>/</span> {nav.find(n => n.id === tab)?.label}</div><div className="top-pill">MVP · {mode === "ai" ? "AI MODE" : "DEMO MODE"}</div></header>
+      <header className="topbar"><div className="mobile-brand">COPD Hook Studio</div><div className="breadcrumb">Workspace <span>/</span> {nav.find(n => n.id === tab)?.label}</div><div className="top-pill">MVP · {mode === "ai" ? "AI MODE · GROQ" : mode === "error" ? "API ERROR" : "DEMO MODE"}</div></header>
       <div className="content">
         {tab === "generator" && <>
           <div className="page-heading"><div><div className="eyebrow">CREATIVE ENGINE</div><h1>Hook Generator</h1><p>EXTREME 极限创意模式：强冲突、强悬念、强情绪，面向美国45岁以上受众。</p></div><div className="heading-spark">✧</div></div>
