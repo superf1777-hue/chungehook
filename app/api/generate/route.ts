@@ -20,25 +20,50 @@ export async function POST(req: Request) {
     }
 
     const client = new OpenAI({ apiKey, baseURL: "https://api.groq.com/openai/v1" });
-    const completion = await client.chat.completions.create({
-      model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
-      temperature: 1.05,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Generate exactly ${count} distinct, high-impact hooks.
+    const allHooks: any[] = [];
+    const seen = new Set<string>();
+    const batchSize = 5;
+
+    for (let offset = 0; offset < count; offset += batchSize) {
+      const wanted = Math.min(batchSize, count - offset);
+      let batchHooks: any[] = [];
+
+      for (let attempt = 0; attempt < 2 && batchHooks.length < wanted; attempt++) {
+        const completion = await client.chat.completions.create({
+          model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
+          temperature: 1.05,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Return exactly ${wanted} separate hook objects in the JSON "hooks" array. This is batch ${Math.floor(offset / batchSize) + 1} of ${Math.ceil(count / batchSize)}.
 Topic: ${topic}
 Creative mode: ${style}
 Audience: ${audience}
-Reference copy (rhetorical inspiration only; do not repeat unverified medical claims): ${reference}
-Make the hooks noticeably bolder and more emotionally engaging than generic health education. Use a wide mix of archetypes; do not repeat the same opening pattern more than twice.
-For each hook, provide a faithful Chinese translation, a short Chinese angle label, a 0-100 creative-strength score, and a separate concise Chinese medical/ad-risk review.
-Return JSON only.` }
-      ]
-    });
-    const raw = completion.choices[0]?.message?.content || '{"hooks":[]}';
-    const parsed = JSON.parse(raw);
-    return NextResponse.json({ mode: "ai", hooks: Array.isArray(parsed.hooks) ? parsed.hooks.slice(0, count) : [] });
+Reference copy (rhetorical inspiration only; do not repeat unverified medical claims): ${reference || "None provided. Create original concepts."}
+Previously generated English hooks to avoid repeating: ${allHooks.map(h => h.english).join(" || ") || "None"}
+Every hook must have a different underlying idea and opening structure. Write punchy, natural American spoken English, not generic health-blog headlines. Return exactly ${wanted} objects, each with english, chinese, angle, score, and review. Return valid JSON only.` }
+          ]
+        });
+        const raw = completion.choices[0]?.message?.content || '{"hooks":[]}';
+        const parsed = JSON.parse(raw);
+        const candidates = Array.isArray(parsed.hooks) ? parsed.hooks : [];
+        batchHooks = candidates.filter((h: any) => {
+          const key = String(h.english || "").trim().toLowerCase();
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        }).slice(0, wanted);
+      }
+
+      allHooks.push(...batchHooks);
+      if (batchHooks.length < wanted) {
+        return NextResponse.json({
+          error: `AI 只生成了 ${allHooks.length}/${count} 条。请再点一次生成；本次未显示不完整结果。`
+        }, { status: 502 });
+      }
+    }
+
+    return NextResponse.json({ mode: "ai", hooks: allHooks.slice(0, count) });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Generation failed. Check server configuration and try again." }, { status: 500 });
