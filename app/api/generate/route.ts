@@ -39,15 +39,15 @@ export async function POST(req: Request) {
     const audience = String(body.audience || "美国45岁以上长期吸烟者及COPD相关人群");
     const reference = String(body.reference || "");
     const count = Math.min(50, Math.max(1, Number(body.count || 20)));
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ mode: "demo", hooks: demoHooks(topic, style, count) });
+      return NextResponse.json({ error: "Missing GROQ_API_KEY. Add it in Vercel Environment Variables and redeploy." }, { status: 500 });
     }
 
-    const client = new OpenAI({ apiKey });
+    const client = new OpenAI({ apiKey, baseURL: "https://api.groq.com/openai/v1" });
     const completion = await client.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
       temperature: 1.05,
       response_format: { type: "json_object" },
       messages: [
