@@ -16,7 +16,7 @@ export default function Home() {
   const [topic, setTopic] = useState("Vicks、吸烟与 COPD 肺部健康");
   const [style, setStyle] = useState(styles[0]);
   const [audience, setAudience] = useState("美国50岁以上长期吸烟者");
-  const [reference, setReference] = useState("You Don't Need To Stop Smoking If You Know This Vicks Trick!");
+  const [reference, setReference] = useState("");
   const [count, setCount] = useState(20);
   const [hooks, setHooks] = useState<Hook[]>([]);
   const [library, setLibrary] = useState<Hook[]>([]);
